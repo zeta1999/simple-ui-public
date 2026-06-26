@@ -1,0 +1,8 @@
+[package]
+name = "simple-ui-widgets"
+version = "0.1.0"
+edition = "2021"
+description = "Reusable ratatui widgets for simple-ui consumers, split out of the `tui` demo app (CHANGE_REQUESTS.md #1). Depends only on ratatui, so consumers don't inherit the demo app's tokio/syntect/pty/tui-textarea tree."
+
+[dependencies]
+ratatui = "0.26"

@@ -1,0 +1,14 @@
+[package]
+name = "full_tui_example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+markdown_engine = { path = "../../markdown_engine" }
+tui = { path = "../../tui" }
+ratatui = "0.26"
+crossterm = "0.27"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.13", features = ["stream"] }
+futures-util = "0.3"
+serde_json = "1.0"

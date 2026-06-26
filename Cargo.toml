@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "markdown_engine",
+    "widgets",
+    "tui",
+    "examples/full_tui",
+    "examples/widget-examples"
+]
+resolver = "2"

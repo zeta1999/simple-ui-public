@@ -1,0 +1,6 @@
+/target/
+/graphical/node_modules/
+/graphical/dist/
+/graphical/dist-electron/
+**/.DS_Store
+/scripts/node_modules/

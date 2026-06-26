@@ -1,0 +1,5 @@
+[
+  { "action": "click", "target": "text=PnL" },
+  { "action": "click", "target": "text=Symbol" },
+  { "action": "click", "target": "text=Document" }
+]

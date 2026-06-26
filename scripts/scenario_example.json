@@ -1,0 +1,10 @@
+[
+  {
+    "action": "click",
+    "target": "text=Terminal UI (TUI)"
+  },
+  {
+    "action": "click",
+    "target": "text=Submit Response"
+  }
+]

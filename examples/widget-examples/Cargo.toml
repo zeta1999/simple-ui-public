@@ -1,0 +1,16 @@
+[package]
+name = "widget-examples"
+version = "0.1.0"
+edition = "2021"
+description = "Runnable, heavily-commented examples for every simple-ui-widgets widget. Each binary runs interactively (live TUI) or headless (--headless: one text snapshot to stdout, no TTY)."
+
+[dependencies]
+simple-ui-widgets = { path = "../../widgets" }
+ratatui = "0.26"
+crossterm = "0.27"
+
+# Each file in src/bin/ is its own runnable example: `cargo run --bin <name>`.
+# They share the synthetic market feed (src/feed.rs) and the run harness
+# (src/harness.rs) exposed by the library target below.
+[lib]
+path = "src/lib.rs"

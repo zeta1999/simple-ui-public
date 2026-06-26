@@ -1,0 +1,109 @@
+/* Styling for the desktop trading terminal. Mirrors the TUI layout:
+   chart top-left, ladder + tape top-right, blotter across the bottom. */
+
+.terminal {
+  display: flex;
+  gap: 12px;
+  height: calc(100vh - 96px);
+  font-family: var(--font-mono);
+}
+
+.terminal-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.terminal-col.left { flex: 1; }
+.terminal-col.right { width: 360px; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* let inner content scroll instead of overflowing */
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.panel.grow { flex: 1; } /* expand to fill the column */
+
+.panel-title {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+}
+
+.panel-body {
+  padding: 8px 12px;
+}
+.panel.grow .panel-body { flex: 1; min-height: 0; }
+.panel-body.scroll { overflow: auto; }
+
+/* --- Depth ladder --- */
+.ladder { font-size: 0.82rem; }
+.ladder-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 14px 90px 1fr;
+  align-items: center;
+  height: 20px;
+}
+.ladder-row.ask .ladder-price { color: var(--danger); }
+.ladder-row.bid .ladder-price { color: var(--success); }
+.ladder-bar {
+  position: absolute;
+  right: 0;
+  height: 16px;
+  border-radius: 3px;
+  opacity: 0.2;
+}
+.ladder-row.ask .ladder-bar { background: var(--danger); }
+.ladder-row.bid .ladder-bar { background: var(--success); }
+.ladder-mark { color: var(--accent-secondary); z-index: 1; }
+.ladder-price { z-index: 1; }
+.ladder-size { z-index: 1; text-align: right; color: var(--text-muted); }
+.ladder-mid {
+  color: var(--warning);
+  font-size: 0.74rem;
+  padding: 3px 0;
+  white-space: nowrap;
+}
+
+/* --- Time & sales --- */
+.tape { font-size: 0.82rem; }
+.tape-row {
+  display: grid;
+  grid-template-columns: 18px 1fr 1fr;
+  height: 20px;
+}
+.tape-row.buy { color: var(--success); }
+.tape-row.sell { color: var(--danger); }
+.tape-price { text-align: right; }
+.tape-size { text-align: right; color: var(--text-muted); }
+
+/* --- DataTable / blotter --- */
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.grid th, .grid td { padding: 4px 10px; }
+.grid th {
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 600;
+}
+.grid th.right, .grid td.right { text-align: right; }
+.grid th.left, .grid td.left { text-align: left; }
+.grid tbody tr { cursor: pointer; }
+.grid tbody tr:hover { background: var(--bg-tertiary); }
+.grid tbody tr.selected { background: var(--accent-glass); }
+
+/* --- Chart --- */
+.chart { display: block; }
+.chart-empty { color: var(--text-muted); padding: 1rem; }
