@@ -46,3 +46,5 @@
   missing (`CHANGE_REQUESTS.md` #5 / #6 / #7 panel host).
 - [ ] This workspace has no sibling path deps (self-contained). That is
   intentional today; git submodules / vendoring stay deferred.
+- [x] Run tests and CI on **linux/arm64** and **linux/amd64** via Docker on Mac
+  (QEMU for amd64).
