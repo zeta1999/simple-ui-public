@@ -34,9 +34,15 @@
 - [x] `cargo fmt --all` — workspace is rustfmt-clean.
 - [x] Upstream **DepthLadder**, **TimeAndSales**, **DataTable**, **Chart** into
   `simple-ui-widgets` (see `STATUS.md` / `CHANGE_REQUESTS.md`).
-- [ ] Make the `tui` demo app consume `simple-ui-widgets` (it still carries a
-  duplicate candlestick / editor / PTY copy).
-- [ ] Remaining CRs: #5 reusable real-time data-binding helper in the lib
-  · #6 chart zoom/pan/overlay · #7 panel/cell host.
-- [ ] IPC daemon is localhost-only and now token/size-bounded; it still does not
-  apply updates to a live AST (prints and acks). No default token.
+## Still open (future improvements)
+
+- [ ] `tui` still carries its own candlestick/editor/PTY copies instead of
+  depending on `simple-ui-widgets`. Do **not** drop editor/PTY: they have
+  consumers (SSH-style pipes, `simple-remote` interactive sessions). The work
+  is to export a reusable PTY/editor widget from `simple-ui-widgets` so those
+  crates share one implementation.
+- [ ] IPC still only acks updates; it does not apply them to a live AST.
+- [ ] Chart zoom/pan/overlay and a reusable data-binding helper are still
+  missing (`CHANGE_REQUESTS.md` #5 / #6 / #7 panel host).
+- [ ] This workspace has no sibling path deps (self-contained). That is
+  intentional today; git submodules / vendoring stay deferred.
