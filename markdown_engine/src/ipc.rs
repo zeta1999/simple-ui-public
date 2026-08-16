@@ -4,6 +4,22 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 use warp::Filter;
 
+/// Cap on a single HTTP `/update` body or UDS line. This is a live markdown
+/// document, not a file store.
+const MAX_IPC_BODY: u64 = 1024 * 1024;
+
+fn token_eq(presented: &str, expected: &str) -> bool {
+    let a = presented.as_bytes();
+    let b = expected.as_bytes();
+    if a.len() != b.len() {
+        return false;
+    }
+    a.iter()
+        .zip(b.iter())
+        .fold(0u8, |acc, (x, y)| acc | (x ^ y))
+        == 0
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UiEvent {
     pub event_type: String, // e.g., "input", "submit", "edited"
@@ -23,7 +39,7 @@ pub async fn start_http_server(port: u16, state: Arc<IpcState>) {
     let with_auth = warp::header::header::<String>("x-sec-token")
         .and(state_filter.clone())
         .and_then(|token: String, state: Arc<IpcState>| async move {
-            if token == state.auth_token {
+            if token_eq(&token, &state.auth_token) {
                 Ok::<_, warp::Rejection>(())
             } else {
                 Err(warp::reject::custom(Unauthorized))
@@ -34,6 +50,7 @@ pub async fn start_http_server(port: u16, state: Arc<IpcState>) {
     let update_route = warp::post()
         .and(warp::path("update"))
         .and(with_auth.clone())
+        .and(warp::body::content_length_limit(MAX_IPC_BODY))
         .and(warp::body::bytes())
         .map(|_, bytes: bytes::Bytes| {
             let md_content = String::from_utf8_lossy(&bytes).to_string();
@@ -77,6 +94,16 @@ pub async fn start_uds_server(socket_path: &str, state: Arc<IpcState>) {
     let _ = std::fs::remove_file(socket_path);
 
     let listener = UnixListener::bind(socket_path).expect("Failed to bind to UDS");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if let Some(parent) = std::path::Path::new(socket_path).parent() {
+            if !parent.as_os_str().is_empty() {
+                let _ = std::fs::set_permissions(parent, std::fs::Permissions::from_mode(0o700));
+            }
+        }
+        let _ = std::fs::set_permissions(socket_path, std::fs::Permissions::from_mode(0o600));
+    }
     println!("Starting UNIX Domain Socket server at {}", socket_path);
 
     loop {
@@ -87,6 +114,7 @@ pub async fn start_uds_server(socket_path: &str, state: Arc<IpcState>) {
                     let (reader, mut writer) = socket.split();
                     let mut reader = BufReader::new(reader);
                     let mut line = String::new();
+                    const MAX_LINE: usize = MAX_IPC_BODY as usize;
 
                     let mut rx = state_clone.tx.subscribe();
 
@@ -97,6 +125,9 @@ pub async fn start_uds_server(socket_path: &str, state: Arc<IpcState>) {
                                 match bytes_read {
                                     Ok(0) => break, // EOF, client disconnected
                                     Ok(_) => {
+                                        if line.len() > MAX_LINE {
+                                            break;
+                                        }
                                         let trimmed = line.trim();
                                         if !trimmed.is_empty() {
                                             if let Ok(json) = serde_json::from_str::<serde_json::Value>(trimmed) {
@@ -105,7 +136,7 @@ pub async fn start_uds_server(socket_path: &str, state: Arc<IpcState>) {
                                                 let token = json["token"].as_str().unwrap_or("");
 
                                                 if action == "update" {
-                                                    if token == state_clone.auth_token {
+                                                    if token_eq(token, &state_clone.auth_token) {
                                                         println!("UDS Received update!");
                                                         let _ = writer.write_all(b"{\"status\": \"ok\"}\n").await;
                                                     } else {
@@ -142,3 +173,15 @@ pub async fn start_uds_server(socket_path: &str, state: Arc<IpcState>) {
 #[derive(Debug)]
 struct Unauthorized;
 impl warp::reject::Reject for Unauthorized {}
+
+#[cfg(test)]
+mod tests {
+    use super::token_eq;
+
+    #[test]
+    fn token_eq_matches_and_rejects() {
+        assert!(token_eq("abc", "abc"));
+        assert!(!token_eq("abc", "abd"));
+        assert!(!token_eq("abc", "ab"));
+    }
+}

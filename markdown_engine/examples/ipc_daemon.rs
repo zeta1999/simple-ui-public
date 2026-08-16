@@ -8,7 +8,14 @@ use markdown_engine::ipc::start_uds_server;
 #[tokio::main]
 async fn main() {
     let port = 3030;
-    let auth_token = "super_secret_token_123".to_string();
+    let auth_token = std::env::var("SIMPLE_UI_IPC_TOKEN").unwrap_or_else(|_| {
+        eprintln!("simple-ui: set SIMPLE_UI_IPC_TOKEN (no default token)");
+        std::process::exit(2);
+    });
+    if auth_token.is_empty() {
+        eprintln!("simple-ui: SIMPLE_UI_IPC_TOKEN must be non-empty");
+        std::process::exit(2);
+    }
     let socket_path = "/tmp/extended_markdown.sock";
 
     let (tx, _) = broadcast::channel(100);

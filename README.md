@@ -11,10 +11,12 @@
 <p align="center">
   <img src="https://img.shields.io/badge/part%20of-simple%20tools-00d4ff.svg" alt="part of simple tools">
   <img src="https://img.shields.io/badge/Rust-2021-orange.svg?logo=rust" alt="Rust">
-  <img src="https://img.shields.io/badge/status-released-success.svg" alt="released">
+  <img src="https://img.shields.io/badge/status-alpha-yellow.svg" alt="alpha">
   <img src="https://img.shields.io/badge/TUI-widgets%20%2B%20engine-blueviolet.svg" alt="TUI">
   <img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg" alt="license">
 </p>
+
+> **⚠ Alpha.** TUI-first widget library. The IPC daemon is localhost-only and does not yet apply updates to a live AST.
 
 > Part of [**simple tools**](https://zeta1999.github.io/renoir42/simple-tools.html) — small, composable Rust libraries for building tooling fast from a harness.
 
